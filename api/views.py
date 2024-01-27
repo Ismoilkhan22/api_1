@@ -4,10 +4,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from api.models import Telefon
+from api.serializer import TelefonSerializer
 
 
 class TelefonVeiw(GenericAPIView):
     permission_classes = (AllowAny,)
+    serializer_class = TelefonSerializer
 
     def get(self, request, pk=None, *args, **kwargs):
         if pk:
@@ -24,10 +26,7 @@ class TelefonVeiw(GenericAPIView):
                 return Response({"Error": "Bunaqa id yo'q "})
 
         telefonlar = Telefon.objects.all().order_by("-pk")
-        natija = []
-        for i in telefonlar:
-            natija.append(i.format())
-        return Response(natija)
+        return Response([x.format() for x in telefonlar])
 
     def delete(self, request, pk):
         try:
@@ -37,3 +36,22 @@ class TelefonVeiw(GenericAPIView):
         except:
 
             return Response({"natija": "aldama"})
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        telefon = serializer.save()
+
+        return Response(telefon.format())
+
+    def put(self, request, pk, *args, **kwargs):
+        data = request.data
+        root = Telefon.objects.filter(pk=pk).first()
+        if not root:
+            return Response({"error": "Bunaqa narsa yo'q"})
+        serializer = self.serializer_class(data=data, instance=root, partial=True)
+        serializer.is_valid(raise_exception=True,)
+        telefon = serializer.save()
+
+        return Response(telefon.format())
