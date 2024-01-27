@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import Hisoblash
+from .views import TelefonVeiw
 
 urlpatterns = [
 
-    path('hisoblash/', Hisoblash.as_view())
+    path('', TelefonVeiw.as_view()),
+    path('<int:pk>/', TelefonVeiw.as_view()),
 ]
